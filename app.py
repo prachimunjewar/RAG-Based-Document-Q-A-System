@@ -27,7 +27,7 @@ body, .stApp { background: #f9fafb; color: #111827; font-family: sans-serif; }
 /* header */
 .app-header {
     background: #1e293b;
-    color: white;
+    color: black;
     padding: 1rem 1.5rem;
     border-radius: 8px;
     margin-bottom: 1.5rem;
