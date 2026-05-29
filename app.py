@@ -21,13 +21,30 @@ st.set_page_config(
 st.markdown("""
 <style>
 /* clean, simple theme */
+
+/* sidebar */
+[data-testid="stSidebar"] {
+    background-color: #1e293b !important;
+}
+[data-testid="stSidebar"] * {
+    color: #f1f5f9 !important;
+}
+[data-testid="stSidebar"] .stButton > button {
+    background-color: #0ea5e9 !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 6px !important;
+}
+[data-testid="stSidebar"] hr {
+    border-color: rgba(255,255,255,0.1) !important;
+}
 body, .stApp { background: #f9fafb; color: #111827; font-family: sans-serif; }
 #MainMenu, footer, header { visibility: hidden; }
 
 /* header */
 .app-header {
-    background: #000000;
-    color: black;
+    background: #1e293b;
+    color: white;
     padding: 1rem 1.5rem;
     border-radius: 8px;
     margin-bottom: 1.5rem;
