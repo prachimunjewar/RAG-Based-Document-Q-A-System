@@ -5,3 +5,5 @@ faiss-cpu
 groq
 python-dotenv
 numpy
+torch
+torchvision
