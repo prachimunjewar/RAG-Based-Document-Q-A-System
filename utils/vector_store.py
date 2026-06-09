@@ -56,6 +56,11 @@ class VectorStore:
         """Load a FAISS index from disk."""
         self.index = faiss.read_index(path)
 
+    def search(self, query, top_k=4):
+    query_vec = self.embedder.encode([query])
+    scores, indices = self.index.search(query_vec, top_k)
+    return list(zip(indices[0].tolist(), scores[0].tolist()))
+
     @property
     def size(self) -> int:
         return self.index.ntotal
