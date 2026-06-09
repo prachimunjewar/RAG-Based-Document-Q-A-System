@@ -4,6 +4,18 @@ from groq import Groq
 from dotenv import load_dotenv
 from utils.vector_store import VectorStore
 
+from utils.hybrid_retriever import HybridRetriever
+
+class RAGPipeline:
+    def __init__(self, vector_store, chunks):  # add chunks param
+        self.retriever = HybridRetriever(chunks, vector_store)
+        # rest of your init...
+
+    def ask(self, question, top_k=4):
+        results = self.retriever.retrieve(question, top_k=top_k)
+        context = "\n\n".join([chunk for _, chunk, _ in results])
+        # rest stays same — pass context to LLM
+
 load_dotenv()
 
 MODEL = "llama-3.3-70b-versatile"  # fast, free Groq model
