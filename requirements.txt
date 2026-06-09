@@ -7,3 +7,4 @@ python-dotenv
 numpy
 torch
 torchvision
+rank-bm25
