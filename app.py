@@ -726,7 +726,7 @@ else:
         with st.chat_message("assistant"):
         with st.spinner("Retrieving relevant passages and generating answer…"):
           answer, results = st.session_state.pipeline.ask(question, top_k=top_k)
-             st.markdown(answer)
+          st.markdown(answer)
 
         # evaluation scores
         from utils.evaluator import score_answer
