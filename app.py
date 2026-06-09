@@ -590,7 +590,7 @@ if not st.session_state.pipeline:
                 vs.build(chunks)
                 elapsed = round(time.time() - t0, 1)
 
-            st.session_state.pipeline = RAGPipeline(vs)
+            st.session_state.pipeline = RAGPipeline(vs, chunks)
             st.session_state.chat     = []
             st.session_state.doc_info = {
                 "name":       doc["file_name"],
