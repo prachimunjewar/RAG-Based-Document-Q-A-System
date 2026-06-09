@@ -737,7 +737,7 @@ else:
         col1.metric("Faithfulness", f"{scores['faithfulness']}%")
         col2.metric("Answer Relevancy", f"{scores['answer_relevancy']}%")
 
-    st.session_state.chat.append({"role": "assistant", "content": answer})
+        st.session_state.chat.append({"role": "assistant", "content": answer})
 # ── FOOTER ────────────────────────────────────────────────────
 st.markdown("""
 <div class="lx-footer">
