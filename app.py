@@ -724,10 +724,10 @@ else:
         with st.chat_message("user"):
             st.markdown(question)
         with st.chat_message("assistant"):
-           with st.spinner("Retrieving relevant passages and generating answer…"):
-              answer, results = st.session_state.pipeline.ask(question, top_k=top_k)
-              st.markdown(answer)
-        
+        with st.spinner("Retrieving relevant passages and generating answer…"):
+          answer, results = st.session_state.pipeline.ask(question, top_k=top_k)
+             st.markdown(answer)
+
         # evaluation scores
         from utils.evaluator import score_answer
         context_chunks = [chunk for _, chunk, _ in results]
@@ -735,9 +735,8 @@ else:
         col1, col2 = st.columns(2)
         col1.metric("Faithfulness", f"{scores['faithfulness']}%")
         col2.metric("Answer Relevancy", f"{scores['answer_relevancy']}%")
-        
-    st.session_state.chat.append({"role": "assistant", "content": answer})
 
+    st.session_state.chat.append({"role": "assistant", "content": answer})
 # ── FOOTER ────────────────────────────────────────────────────
 st.markdown("""
 <div class="lx-footer">
