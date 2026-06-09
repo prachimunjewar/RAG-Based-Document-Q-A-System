@@ -3,35 +3,19 @@ from typing import List
 from groq import Groq
 from dotenv import load_dotenv
 from utils.vector_store import VectorStore
-
 from utils.hybrid_retriever import HybridRetriever
-
-class RAGPipeline:
-    def __init__(self, vector_store, chunks):  # add chunks param
-        self.retriever = HybridRetriever(chunks, vector_store)
-        # rest of your init...
-
-    def ask(self, question, top_k=4):
-        results = self.retriever.retrieve(question, top_k=top_k)
-        context = "\n\n".join([chunk for _, chunk, _ in results])
-        # rest stays same — pass context to LLM
 
 load_dotenv()
 
-MODEL = "llama-3.3-70b-versatile"  # fast, free Groq model
-MAX_HISTORY = 6  # keep last N exchanges in memory
-
+MODEL = "llama-3.3-70b-versatile"
+MAX_HISTORY = 6
 
 class RAGPipeline:
-    """
-    Full RAG pipeline: retrieve relevant chunks → build prompt → call Groq LLM.
-    Maintains multi-turn conversation memory.
-    """
-
-    def __init__(self, vector_store: VectorStore):
+    def __init__(self, vector_store: VectorStore, chunks: List[str]):
         self.vs = vector_store
+        self.retriever = HybridRetriever(chunks, vector_store)
         self.client = Groq(api_key=os.getenv("GROQ_API_KEY"))
-        self.history: List[dict] = []  # {"role": ..., "content": ...}
+        self.history: List[dict] = []
 
     def _build_system_prompt(self, context: str) -> str:
         return f"""You are a helpful, precise document assistant.
@@ -43,35 +27,22 @@ Be concise, accurate, and cite the relevant part when helpful.
 {context}
 --- END CONTEXT ---"""
 
-    def _format_context(self, results) -> str:
-        parts = []
-        for i, (chunk, score) in enumerate(results):
-            parts.append(f"[Excerpt {i+1}] {chunk['text']}")
-        return "\n\n".join(parts)
-
-    def ask(self, question: str, top_k: int = 4) -> str:
-        """
-        Ask a question. Retrieves context, builds prompt, calls Groq.
-
-        Args:
-            question: User's question string.
-            top_k: Number of chunks to retrieve.
-
-        Returns:
-            Answer string from the LLM.
-        """
-        # 1. Retrieve relevant chunks
-        results = self.vs.search(question, top_k=top_k)
+    def ask(self, question: str, top_k: int = 4):
+        # 1. Hybrid retrieval (BM25 + FAISS)
+        results = self.retriever.retrieve(question, top_k=top_k)
         if not results:
-            return "No document loaded or index is empty."
+            return "No document loaded or index is empty.", []
 
-        context = self._format_context(results)
+        # 2. Build context from results
+        context = "\n\n".join([
+            f"[Excerpt {i+1}] {chunk}"
+            for i, (_, chunk, _) in enumerate(results)
+        ])
+
         system_prompt = self._build_system_prompt(context)
 
-        # 2. Add question to history
+        # 3. Add question to history
         self.history.append({"role": "user", "content": question})
-
-        # 3. Trim history to last MAX_HISTORY messages
         trimmed = self.history[-MAX_HISTORY:]
 
         # 4. Call Groq
@@ -81,16 +52,15 @@ Be concise, accurate, and cite the relevant part when helpful.
             temperature=0.2,
             max_tokens=1024,
         )
-
         answer = response.choices[0].message.content.strip()
 
-        # 5. Add answer to history
+        # 5. Save to history
         self.history.append({"role": "assistant", "content": answer})
 
-        return answer
+        # 6. Return both answer and results for evaluation
+        return answer, results
 
     def reset_memory(self) -> None:
-        """Clear conversation history."""
         self.history = []
 
     @property
