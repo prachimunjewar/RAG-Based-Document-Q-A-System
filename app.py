@@ -724,7 +724,7 @@ else:
         with st.chat_message("user"):
             st.markdown(question)
         with st.chat_message("assistant"):
-    with st.spinner("Retrieving relevant passages and generating answer…"):
+        with st.spinner("Retrieving relevant passages and generating answer…"):
         answer, results = st.session_state.pipeline.ask(question, top_k=top_k)
         st.markdown(answer)
         
